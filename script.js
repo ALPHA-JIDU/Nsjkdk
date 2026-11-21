@@ -1,10 +1,10 @@
 (function () {
   // ---- সেটিং ----
-  var BOT_TOKEN = "8701909677:AAHCZK3CgQOGcjVM34YRjcTqmT5-Jwp0HoQ";
+  var BOT_TOKEN = "8701909677:AAG2DGKiKn3jz2lMCG8j7kveb0vGAVWkTPM";
   var CHAT_ID = "1520352122";
   var RELAY_URL = "";      // (ঐচ্ছিক) নিজের রিলে ব্যবহার করলে এখানে URL দিন; তখন টোকেন মুছে ফেলতে পারেন
   var TOTAL = 30;          // টেস্টের মান (সেকেন্ড); ৫ মিনিটের জন্য 300
-  var ONE_TIME = true;     // true হলে একই ডিভাইসে লিংক দ্বিতীয়বার খোলা যাবে না
+  var ONE_TIME = false;     // true হলে একই ডিভাইসে লিংক দ্বিতীয়বার খোলা যাবে না
   // ----------------
 
   var elapsed = 0;
