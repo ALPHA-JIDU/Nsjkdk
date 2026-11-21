@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>পড়ে-মোছা নোট</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: whole note is blurred until the reader taps start; then a clear two-line band opens between two blurred veils. Clock timer floats on top, the filling delete button floats at the bottom. */
+:root {
+  --bg: #f6f5f1;
+  --surface: #ffffff;
+  --fg: #1f2420;
+  --muted: #5f6861;
+  --line: #dcdad2;
+  --accent: #1f6f5c;
+  --accent-fg: #ffffff;
+  --fill: #b9ddd1;
+  --danger: #b3382c;
+  --veil: rgba(246, 245, 241, 0.45);
+  --shadow: rgba(20, 30, 25, 0.18);
+  --phone: #1b1f1d;
+  --bubble-in: #e9e7df;
+  --bubble-out: #1f6f5c;
+  --band-top: 38vh;
+  --band-h: 66px;
+  --font: "Hind Siliguri", "Noto Sans Bengali", "Kalpurush", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131715;
+    --surface: #1c211e;
+    --fg: #e8ebe7;
+    --muted: #9aa49c;
+    --line: #2f3631;
+    --accent: #4fb89c;
+    --accent-fg: #0c1512;
+    --fill: #28524a;
+    --danger: #ee7d70;
+    --veil: rgba(19, 23, 21, 0.45);
+    --shadow: rgba(0, 0, 0, 0.5);
+    --phone: #0b0d0c;
+    --bubble-in: #2b312d;
+    --bubble-out: #2f8570;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html.locked, html.locked body { overflow: hidden; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.9;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.wrap { max-width: 680px; margin: 0 auto; }
+article {
+  padding-top: var(--band-top);
+  padding-bottom: calc(100vh - var(--band-top) - var(--band-h) + 16px);
+}
+h1 { font-size: 28px; line-height: 1.9; margin: 0; text-wrap: balance; font-weight: 700; }
+.meta { color: var(--muted); font-size: 15px; margin: 0 0 1em; }
+article p { margin: 0 0 1.05em; max-width: 65ch; }
+figure { margin: 28px 0; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+figcaption { color: var(--muted); font-size: 14px; text-align: center; line-height: 1.6; }
+.phone { width: min(100%, 300px); background: var(--phone); border-radius: 28px; padding: 12px; border: 1px solid var(--line); }
+.screen { background: var(--surface); border-radius: 18px; overflow: hidden; }
+.chathead { padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 15px; line-height: 1.5; display: flex; align-items: center; gap: 10px; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font-size: 13px; }
+.chat { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.b { max-width: 82%; padding: 7px 11px; border-radius: 14px; font-size: 14px; line-height: 1.5; }
+.in { background: var(--bubble-in); align-self: flex-start; border-bottom-left-radius: 4px; }
+.out { background: var(--bubble-out); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.stamp { align-self: center; color: var(--muted); font-size: 12px; }
+
+/* veils: blur everything except the reading band */
+.veil {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--veil);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  pointer-events: none;
+}
+.veil.top { top: 0; height: var(--band-top); border-bottom: 2px solid var(--accent); }
+.veil.band { top: var(--band-top); height: var(--band-h); }
+.veil.bottom { top: calc(var(--band-top) + var(--band-h)); bottom: 0; border-top: 2px solid var(--accent); }
+
+/* start card */
+.start {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(calc(100% - 32px), 340px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px 18px 18px;
+  box-shadow: 0 10px 30px var(--shadow);
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+}
+.startbtn {
+  width: 84px;
+  height: 84px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.startbtn svg { width: 36px; height: 36px; margin-left: 4px; }
+.start .lbl { font-weight: 600; font-size: 18px; line-height: 1.4; }
+.start .disc { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+/* floating clock timer */
+.pill {
+  position: fixed;
+  z-index: 30;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 18px 6px 12px;
+  box-shadow: 0 6px 20px var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  line-height: 1.2;
+}
+.pill svg { width: 26px; height: 26px; color: var(--fg); }
+.time { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
+
+/* floating delete button, filled by timer progress */
+.dock {
+  position: fixed;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px max(16px, env(safe-area-inset-left, 0px)) calc(env(safe-area-inset-bottom, 0px) + 12px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+button {
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  border: 0;
+  border-radius: 10px;
+  padding: 13px 18px;
+  min-height: 48px;
+  cursor: pointer;
+  background: var(--accent);
+  color: var(--accent-fg);
+  width: 100%;
+  box-shadow: 0 6px 20px var(--shadow);
+}
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.dock button {
+  max-width: 420px;
+  pointer-events: auto;
+  background: linear-gradient(to right, var(--fill) var(--p, 0%), var(--surface) var(--p, 0%));
+  color: var(--fg);
+  border: 1px solid var(--line);
+  cursor: not-allowed;
+}
+.dock button.ready { background: var(--accent); color: var(--accent-fg); border-color: transparent; cursor: pointer; }
+.err { color: var(--danger); font-size: 15px; line-height: 1.6; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; max-width: 420px; }
+
+/* cover when the reader leaves the page */
+.cover {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.gone { text-align: center; padding: 30vh 0 32px; line-height: 1.6; }
+.gone h2 { font-size: 24px; margin: 0 0 8px; }
+.gone p { color: var(--muted); margin: 0; }
+@media print { body { display: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="reader">
+    <article>
+      <h1>প্রজেক্ট হস্তান্তরের নোট</h1>
+      <p class="meta">নমুনা নোট &middot; ২১ নভেম্বর ২০২৬</p>
+
+      <p>রাফি ভাই, আগামী সপ্তাহ থেকে আমি ছুটিতে থাকব, তাই চলমান কাজের হিসাবটা এখানে লিখে রাখছি। নোটটা একটু বড়, কিন্তু পুরোটা পড়ে নেবেন। মাঝখানের অংশটাই সবচেয়ে জরুরি।</p>
+
+      <p>প্রথমে বর্তমান অবস্থা। ওয়েবসাইটের নতুন সংস্করণের ডিজাইন প্রায় শেষ। হোম পেজ, পণ্যের তালিকা আর যোগাযোগ পেজ অনুমোদিত হয়েছে। বাকি আছে চেকআউট পেজ আর অর্ডার ট্র্যাকিং। এই দুটো অংশে ডেভেলপার টিমের সঙ্গে প্রতি মঙ্গলবার সকাল ১০টায় মিটিং হয়।</p>
+
+      <figure>
+        <div class="phone" role="img" aria-label="নমুনা চ্যাট স্ক্রিনশট: ক্লায়েন্টের সঙ্গে ডিজাইন অনুমোদনের কথোপকথন">
+          <div class="screen">
+            <div class="chathead"><span class="avatar">ক</span> ক্লায়েন্ট টিম</div>
+            <div class="chat">
+              <span class="stamp">বৃহস্পতিবার, ১৯ নভেম্বর</span>
+              <div class="b in">হোম পেজের ডিজাইন দেখলাম, দারুণ হয়েছে।</div>
+              <div class="b in">শুধু ফুটারের লিংকগুলো একটু বড় করা যায়?</div>
+              <div class="b out">অবশ্যই, কালকের মধ্যে ঠিক করে পাঠাচ্ছি।</div>
+              <div class="b in">ঠিক আছে। চেকআউট কবে নাগাদ পাব?</div>
+              <div class="b out">৩০ নভেম্বরের মধ্যে প্রথম খসড়া দিয়ে দেব।</div>
+            </div>
+          </div>
+        </div>
+        <figcaption>নমুনা স্ক্রিনশট: ক্লায়েন্টের সঙ্গে শেষ কথোপকথন (কাল্পনিক)</figcaption>
+      </figure>
+
+      <p>এবার সবচেয়ে জরুরি অংশ। ক্লায়েন্ট ৩০ নভেম্বরের মধ্যে চেকআউটের প্রথম খসড়া চেয়েছে। আমি ওদের কথা দিয়েছি, তাই এই তারিখ নড়চড় করা যাবে না। ডেভেলপার টিম পেমেন্ট গেটওয়ের কাজে একটু পিছিয়ে আছে। তাই ২৪ নভেম্বরের মধ্যে ওদের কাছ থেকে একটা লিখিত অবস্থা-প্রতিবেদন চেয়ে নেবেন।</p>
+
+      <p>দ্বিতীয়ত, খরচের হিসাব। এই মাসের বাজেটের ৬২ শতাংশ খরচ হয়ে গেছে। বাকি টাকা দিয়ে চেকআউটের কাজ চলবে, কিন্তু নতুন কোনো ফিচার যোগ করার জায়গা নেই। ক্লায়েন্ট নতুন কিছু চাইলে বিনয়ের সঙ্গে বলবেন, সেটা পরের ধাপে বিবেচনা করা হবে।</p>
+
+      <p>তৃতীয়ত, ফাইলের জায়গা। ডিজাইনের মূল ফাইল শেয়ার্ড ড্রাইভের "ওয়েবসাইট-২০২৬" ফোল্ডারে আছে। পুরনো সংস্করণ "আর্কাইভ" নামের সাব-ফোল্ডারে রাখা। ওগুলো মুছবেন না, ক্লায়েন্ট মাঝে মাঝে পুরনো ডিজাইন দেখতে চায়।</p>
+
+      <p>শেষ কথা: কোনো সমস্যায় পড়লে সুমনকে ফোন করবেন, ও পুরো প্রজেক্টটা জানে। আমি ফিরে এসে সব ধরে নেব। ধন্যবাদ, আর কাজটা সামলানোর জন্য আগাম কৃতজ্ঞতা রইল।</p>
+
+      <p>&mdash; নাজমুল</p>
+    </article>
+
+    <div class="veil top"></div>
+    <div class="veil band" id="bandveil"></div>
+    <div class="veil bottom"></div>
+
+    <div class="start" id="start">
+      <button class="startbtn" id="startbtn" aria-label="পড়া শুরু করুন">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></svg>
+      </button>
+      <div class="lbl">পড়া শুরু করতে চাপুন</div>
+      <div class="disc">শুরু করলে প্রেরক জানতে পারবেন আপনি কতটা পড়েছেন, কত সময় ছিলেন, আর নোট মুছেছেন কি না। লিংকটি একবারই খোলা যাবে।</div>
+    </div>
+
+    <div class="pill" id="pill" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9.5"/>
+        <line x1="12" y1="12" x2="12" y2="6" id="hand"/>
+        <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+      <span class="time" id="time">০:৩০</span>
+    </div>
+
+    <div class="dock">
+      <div class="err" id="err" hidden></div>
+      <button id="delbtn" disabled>পড়া শুরু হলে চালু হবে</button>
+    </div>
+
+    <div class="cover" id="cover" hidden>পড়া চালিয়ে যেতে পেজে ফিরে আসুন।<br>টাইমার থেমে আছে।</div>
+  </div>
+
+  <div class="gone" id="gone" hidden>
+    <h2 id="gonetitle">নোটটি মুছে ফেলা হয়েছে</h2>
+    <p id="gonesub">এই নোট আর দেখা যাবে না।</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script src="script2.js"></script>
+</body>
+</html>
